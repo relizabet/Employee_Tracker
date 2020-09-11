@@ -14,11 +14,11 @@ const connection = mysql.createConnection({
 connection.connect(function (err) {
   if (err) throw err;
   console.log(`connected as id ${connection.threadId}`);
-  // afterConnect();
-  runSearch();
+  init();
 });
 
-function runSearch() {
+// initialize program by choosing what action to take
+function init() {
   inquirer
     .prompt({
       name: "action",
@@ -34,71 +34,120 @@ function runSearch() {
     .then(function (answer) {
       switch (answer.action) {
         case "Add departments, roles, or employees.":
-          whichOne();
+          chooseTable();
           break;
 
         case "View departments, roles, or employees.":
-          viewFunc();
+          chooseTable();
           break;
 
         case "Update employee roles.":
-          updateFunc();
+          chooseTable();
           break;
 
+        // not working after loop
         case "Exit":
           connection.end();
-          return;
       }
     });
 }
 
-function addFunc(resWhichOne) {
-  console.log(resWhichOne);
+// choose which table to work in
+function chooseTable(resChooseTable) {
+  inquirer
+    .prompt({
+      name: "choice",
+      type: "rawlist",
+      choices: ["Department", "Role", "Employee"],
+    })
+    .then(function (answer) {
+      console.log(answer.choice);
+      switch (answer.choice) {
+        case "Department":
+          addFunc(answer.choice);
+          break;
+
+        case "Role":
+          console.log("Role");
+          addFunc(answer.choice);
+          // init();
+          break;
+
+        case "Employee":
+          console.log("Employee");
+          addFunc(answer.choice);
+          // init();
+          break;
+      }
+    });
+}
+
+function addFunc(resChooseTable) {
+  console.log(resChooseTable);
   inquirer
     .prompt({
       name: "name",
       type: "input",
-      message: `What is the name of your ${resWhichOne}?`,
+      message: `What is the name of your ${resChooseTable}?`,
     })
     .then(function (answer) {
-      console.log(resWhichOne);
-      switch (resWhichOne) {
+      // get input
+      console.log(`input value: ${answer.name}`);
+      // get choice of table
+      console.log(`name of table: ${resChooseTable}`);
+      switch (resChooseTable) {
         case "Department":
-          whichOne(answer.choice);
-          console.log("dep");
-          startAgain();
+          console.log(answer.name);
+          addItem(resChooseTable, answer);
+          // init();
           break;
         case "Role":
-          whichOne(answer.choice);
-          console.log("role");
-          startAgain();
+          console.log(answer.name);
+          // init();
           break;
         case "Employee":
-          whichOne(answer.choice);
-          console.log("empl");
-          startAgain();
+          console.log(answer.name);
+          // init();
           break;
       }
-      // connection.query(
-      //   `INSERT INTO ${resWhichOne} SET ?`,
-      //   {
-      //     name: answer.name,
-      //   },
-      //   function (err) {
-      //     if (err) throw err;
-      //     console.log(`The ${resWhichOne} was added succesfully.`);
-      //     runSearch();
-      //   }
-      // );
     });
 }
 
+function addItem(resChooseTable, answer) {
+  console.log(`117 addItem ${resChooseTable}`);
+  console.log(`118 answer input ${answer.name}`);
+
+  let res = resChooseTable.toLowerCase();
+  console.log(`119 lowered res: ${res}`);
+  connection.query(
+    `INSERT INTO ${res} SET ?`,
+    {
+      name: answer.name,
+    },
+    function (err) {
+      if (err) throw err;
+      console.log(`The ${res} '${answer.name} was added succesfully.`);
+      init();
+    }
+  );
+}
+
+function viewFunc() {
+  console.log("view");
+  init();
+}
+
+function updateFunc() {
+  console.log("update");
+  init();
+}
+
+// --------------------------------------------------------------- //
 function whichOne(resWhichOne) {
   inquirer
     .prompt({
       name: "choice",
       type: "rawlist",
-      // message: "Which one would you like to add?",
       choices: ["Department", "Role", "Employee"],
     })
     .then(function (answer) {
@@ -122,124 +171,6 @@ function whichOne(resWhichOne) {
       }
     });
 }
-
-// // function to initialize program
-// async function init() {
-//   try {
-//     // store await askquestions to pass into generateMarkdown
-//     const answers = await askQuestions();
-//     // write the file
-//     writeToFile("readme_0.md", generateMarkdown(answers));
-//     writeToFile("LICENSE.md", generateLicense(answers));
-//   } catch (err) {
-//     // return any errors
-//     console.log(err);
-//   }
-// }
-
-// function startAgain() {
-//   inquirer
-//     .prompt({
-//       name: "exit",
-//       type: "rawlist",
-//       message: "Would you like to add another?",
-//       choices: ["Yes", "No, I'd like to Exit"],
-//     })
-//     .then(function (answer) {
-//       console.log(answer);
-//       switch (answer.exit) {
-//         case "Yes":
-//           runSearch();
-//           break;
-//         case "No, I'd like to Exit":
-//           endConnection();
-//       }
-//     });
-// }
-
-// function afterConnect() {
-//   toSelect = "role";
-//   connection.query(`SELECT * FROM ${toSelect}`, function (err, res) {
-//     if (err) throw err;
-//     console.log(res);
-//     connection.end();
-//   });
-// }
-
-// function runSearch() {
-//   inquirer
-//     .prompt({
-//       name: "action",
-//       type: "rawlist",
-//       message: "What would you like to do?",
-//       choices: [
-//         "Add departments, roles, or employees.",
-//         "View departments, roles, or employees.",
-//         "Update employee roles.",
-//         "Exit",
-//       ],
-//     })
-//     .then(function (answer) {
-//       switch (answer.action) {
-//         case "Add departments, roles, or employees.":
-//           addFunc();
-//           break;
-
-//         case "View departments, roles, or employees.":
-//           viewFunc();
-//           break;
-
-//         case "Update employee roles.":
-//           updateFunc();
-//           break;
-
-//         case "Exit":
-//           connection.end();
-//           return;
-//       }
-//     });
-// }
-
-// function addFunc() {
-//   console.log("add");
-//   inquirer
-//     .prompt({
-//       name: "name",
-//       type: "input",
-//       message: "What is the name of your department?",
-//     })
-//     .then(function (answer) {
-//       connection.query(
-//         "INSERT INTO department SET ?",
-//         // SET ?', [{name: answerObject.departmentName}]
-//         {
-//           name: answer.name,
-//         },
-//         function (err) {
-//           if (err) throw err;
-//           console.log("Your department was added succesfully!");
-//           runSearch();
-//         }
-//       );
-//     });
-// }
-
-function viewFunc() {
-  console.log("view");
-  runSearch();
-}
-
-function updateFunc() {
-  console.log("update");
-  runSearch();
-}
-
-function endConnection() {
-  connection.end();
-}
-
-// runSearch();
-
 // --------------------------------------------------------------- //
 
 // - Add departments, roles, employees
