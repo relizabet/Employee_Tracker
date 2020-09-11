@@ -3,7 +3,6 @@ let toSelect;
 
 const connection = mysql.createConnection({
   host: "localhost",
-  port: 3306,
   user: "root",
   password: "luca2019",
   database: "employee_tracker",
@@ -22,4 +21,45 @@ function afterConnect() {
     console.log(res);
     connection.end();
   });
+}
+
+function runSearch() {
+  inquirer
+    .prompt({
+      name: "action",
+      type: "rawlist",
+      message: "What would you like to do?",
+      choices: [
+        "Add departments, roles, or employees.",
+        "View departments, roles, or employees.",
+        "Update employee roles.",
+      ],
+    })
+    .then(function (answer) {
+      switch (answer.action) {
+        case "Add departments, roles, or employees.":
+          addFunc();
+          break;
+
+        case "View departments, roles, or employees.":
+          viewFunc();
+          break;
+
+        case "Update employee roles.":
+          updateFunc();
+          break;
+      }
+    });
+}
+
+function addFunc() {
+  console.log("add");
+}
+
+function addFunc() {
+  console.log("view");
+}
+
+function addFunc() {
+  console.log("update");
 }
