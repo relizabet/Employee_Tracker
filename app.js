@@ -4,8 +4,6 @@ const cTable = require("console.table");
 const util = require("util");
 const fs = require("fs");
 
-let toSelect;
-
 const connection = mysql.createConnection({
   host: "localhost",
   user: "root",
@@ -19,12 +17,6 @@ connection.connect(function (err) {
   // afterConnect();
   runSearch();
 });
-
-const choiceObj = {
-  department: "this",
-  role: "that",
-  employee: "those",
-};
 
 function runSearch() {
   inquirer
@@ -72,16 +64,19 @@ function addFunc(resWhichOne) {
       console.log(resWhichOne);
       switch (resWhichOne) {
         case "Department":
-          addFunc(answer.choice);
+          whichOne(answer.choice);
           console.log("dep");
+          startAgain();
           break;
         case "Role":
-          addFunc(answer.choice);
+          whichOne(answer.choice);
           console.log("role");
+          startAgain();
           break;
         case "Employee":
-          addFunc(answer.choice);
+          whichOne(answer.choice);
           console.log("empl");
+          startAgain();
           break;
       }
       // connection.query(
@@ -103,46 +98,64 @@ function whichOne(resWhichOne) {
     .prompt({
       name: "choice",
       type: "rawlist",
+      // message: "Which one would you like to add?",
       choices: ["Department", "Role", "Employee"],
     })
     .then(function (answer) {
       switch (answer.choice) {
         case "Department":
           addFunc(answer.choice);
+          runSearch();
           break;
 
         case "Role":
           console.log("Role");
           addFunc(answer.choice);
+          runSearch();
           break;
 
         case "Employee":
           console.log("Employee");
           addFunc(answer.choice);
+          runSearch();
           break;
       }
-      startAgain();
     });
 }
 
-function startAgain() {
-  inquirer
-    .prompt({
-      name: "exit",
-      type: "confirm",
-      message: "Would you like to add another?",
-    })
-    .then(function (answer) {
-      switch (answer.exit) {
-        case true:
-          runSearch();
-          break;
-        case false:
-          connection.end();
-          return;
-      }
-    });
-}
+// // function to initialize program
+// async function init() {
+//   try {
+//     // store await askquestions to pass into generateMarkdown
+//     const answers = await askQuestions();
+//     // write the file
+//     writeToFile("readme_0.md", generateMarkdown(answers));
+//     writeToFile("LICENSE.md", generateLicense(answers));
+//   } catch (err) {
+//     // return any errors
+//     console.log(err);
+//   }
+// }
+
+// function startAgain() {
+//   inquirer
+//     .prompt({
+//       name: "exit",
+//       type: "rawlist",
+//       message: "Would you like to add another?",
+//       choices: ["Yes", "No, I'd like to Exit"],
+//     })
+//     .then(function (answer) {
+//       console.log(answer);
+//       switch (answer.exit) {
+//         case "Yes":
+//           runSearch();
+//           break;
+//         case "No, I'd like to Exit":
+//           endConnection();
+//       }
+//     });
+// }
 
 // function afterConnect() {
 //   toSelect = "role";
@@ -219,6 +232,10 @@ function viewFunc() {
 function updateFunc() {
   console.log("update");
   runSearch();
+}
+
+function endConnection() {
+  connection.end();
 }
 
 // runSearch();
