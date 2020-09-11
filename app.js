@@ -1,6 +1,8 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
 const cTable = require("console.table");
+const util = require("util");
+const fs = require("fs");
 
 let toSelect;
 
@@ -58,30 +60,45 @@ function runSearch() {
     });
 }
 
-function addFunc() {
+function addFunc(resWhichOne) {
+  console.log(resWhichOne);
   inquirer
     .prompt({
       name: "name",
       type: "input",
-      message: "What is the name of your department?",
+      message: `What is the name of your ${resWhichOne}?`,
     })
     .then(function (answer) {
-      connection.query(
-        "INSERT INTO department SET ?",
-        // SET ?', [{name: answerObject.departmentName}]
-        {
-          name: answer.name,
-        },
-        function (err) {
-          if (err) throw err;
-          console.log("Your department was added succesfully!");
-          runSearch();
-        }
-      );
+      console.log(resWhichOne);
+      switch (resWhichOne) {
+        case "Department":
+          addFunc(answer.choice);
+          console.log("dep");
+          break;
+        case "Role":
+          addFunc(answer.choice);
+          console.log("role");
+          break;
+        case "Employee":
+          addFunc(answer.choice);
+          console.log("empl");
+          break;
+      }
+      // connection.query(
+      //   `INSERT INTO ${resWhichOne} SET ?`,
+      //   {
+      //     name: answer.name,
+      //   },
+      //   function (err) {
+      //     if (err) throw err;
+      //     console.log(`The ${resWhichOne} was added succesfully.`);
+      //     runSearch();
+      //   }
+      // );
     });
 }
 
-function whichOne() {
+function whichOne(resWhichOne) {
   inquirer
     .prompt({
       name: "choice",
@@ -91,16 +108,38 @@ function whichOne() {
     .then(function (answer) {
       switch (answer.choice) {
         case "Department":
-          addFunc();
+          addFunc(answer.choice);
           break;
 
         case "Role":
           console.log("Role");
+          addFunc(answer.choice);
           break;
 
         case "Employee":
           console.log("Employee");
+          addFunc(answer.choice);
           break;
+      }
+      startAgain();
+    });
+}
+
+function startAgain() {
+  inquirer
+    .prompt({
+      name: "exit",
+      type: "confirm",
+      message: "Would you like to add another?",
+    })
+    .then(function (answer) {
+      switch (answer.exit) {
+        case true:
+          runSearch();
+          break;
+        case false:
+          connection.end();
+          return;
       }
     });
 }
