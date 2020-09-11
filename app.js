@@ -1,4 +1,7 @@
 const mysql = require("mysql");
+const inquirer = require("inquirer");
+const cTable = require("console.table");
+
 let toSelect;
 
 const connection = mysql.createConnection({
@@ -33,6 +36,7 @@ function runSearch() {
         "Add departments, roles, or employees.",
         "View departments, roles, or employees.",
         "Update employee roles.",
+        "Exit",
       ],
     })
     .then(function (answer) {
@@ -48,18 +52,44 @@ function runSearch() {
         case "Update employee roles.":
           updateFunc();
           break;
+
+        // case "Exit":
+        //   return;
       }
     });
 }
 
 function addFunc() {
   console.log("add");
+  inquirer
+    .prompt({
+      name: "name",
+      type: "input",
+      message: "What is the name of your department?",
+    })
+    .then(function (answer) {
+      connection.query(
+        "INSERT INTO department SET ?",
+        {
+          name: answer.name,
+        },
+        function (err) {
+          if (err) throw err;
+          console.log("Your department was added succesfully!");
+          runSearch();
+        }
+      );
+    });
 }
 
-function addFunc() {
+function viewFunc() {
   console.log("view");
+  runSearch();
 }
 
-function addFunc() {
+function updateFunc() {
   console.log("update");
+  runSearch();
 }
+
+runSearch();
