@@ -98,8 +98,19 @@ function addFunc(resChooseTable) {
       switch (resChooseTable) {
         case "Department":
           console.log(answer.name);
-          addItem(resChooseTable, answer);
-          // init();
+          let res = resChooseTable.toLowerCase();
+          console.log(`121 lowered res: ${res}`);
+          connection.query(
+            `INSERT INTO ${res} SET ?`,
+            {
+              name: answer.name,
+            },
+            function (err) {
+              if (err) throw err;
+              console.log(`The ${res} '${answer.name}' was added succesfully.`);
+            }
+          );
+          init();
           break;
         case "Role":
           console.log(answer.name);
@@ -113,24 +124,23 @@ function addFunc(resChooseTable) {
     });
 }
 
-function addItem(resChooseTable, answer) {
-  console.log(`117 addItem ${resChooseTable}`);
-  console.log(`118 answer input ${answer.name}`);
+// function addItem(resChooseTable, answer) {
+//   console.log(`117 addItem ${resChooseTable}`);
+//   console.log(`118 answer input ${answer.name}`);
 
-  let res = resChooseTable.toLowerCase();
-  console.log(`119 lowered res: ${res}`);
-  connection.query(
-    `INSERT INTO ${res} SET ?`,
-    {
-      name: answer.name,
-    },
-    function (err) {
-      if (err) throw err;
-      console.log(`The ${res} '${answer.name} was added succesfully.`);
-      init();
-    }
-  );
-}
+//   let res = resChooseTable.toLowerCase();
+//   console.log(`121 lowered res: ${res}`);
+//   connection.query(
+//     `INSERT INTO ${res} SET ?`,
+//     {
+//       name: answer.name,
+//     },
+//     function (err) {
+//       if (err) throw err;
+//       console.log(`The ${res} '${answer.name} was added succesfully.`);
+//     }
+//   );
+// }
 
 function viewFunc() {
   console.log("view");
