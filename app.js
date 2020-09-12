@@ -1,19 +1,8 @@
-const mysql = require("mysql");
 const inquirer = require("inquirer");
 const cTable = require("console.table");
+const connection = require("./config/connect");
 
-const connection = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "luca2019",
-  database: "employee_tracker",
-});
-
-connection.connect(function (err) {
-  if (err) throw err;
-  console.log(`connected as id ${connection.threadId}`);
-  init();
-});
+// return new Promise
 
 // initialize program by choosing what action to take
 function init() {
@@ -43,7 +32,6 @@ function init() {
           chooseTable();
           break;
 
-        // not working after loop
         case "Exit":
           connection.end();
       }
@@ -226,3 +214,5 @@ function whichOne(resWhichOne) {
 // * departments
 // * roles
 // * employees
+
+init();
