@@ -1,8 +1,6 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
 const cTable = require("console.table");
-const util = require("util");
-const fs = require("fs");
 
 const connection = mysql.createConnection({
   host: "localhost",
@@ -34,7 +32,7 @@ function init() {
     .then(function (answer) {
       switch (answer.action) {
         case "Add departments, roles, or employees.":
-          chooseTable();
+          chooseTableAdd();
           break;
 
         case "View departments, roles, or employees.":
@@ -53,7 +51,7 @@ function init() {
 }
 
 // choose which table to work in
-function chooseTable(resChooseTable) {
+function chooseTableAdd(resChooseTableAdd) {
   inquirer
     .prompt({
       name: "choice",
@@ -82,24 +80,24 @@ function chooseTable(resChooseTable) {
     });
 }
 
-function addFunc(resChooseTable) {
-  console.log(resChooseTable);
+function addFunc(resChooseTableAdd) {
+  console.log(resChooseTableAdd);
   inquirer
     .prompt({
       name: "name",
       type: "input",
-      message: `What is the name of your ${resChooseTable}?`,
+      message: `What is the name of the ${resChooseTableAdd}?`,
     })
     .then(function (answer) {
       // get input
       console.log(`input value: ${answer.name}`);
       // get choice of table
-      console.log(`name of table: ${resChooseTable}`);
-      switch (resChooseTable) {
+      console.log(`name of table: ${resChooseTableAdd}`);
+      switch (resChooseTableAdd) {
         case "Department":
-          console.log(answer.name);
-          let res = resChooseTable.toLowerCase();
-          console.log(`121 lowered res: ${res}`);
+          // console.log(answer.name);
+          let res = resChooseTableAdd.toLowerCase();
+          // console.log(`121 lowered res: ${res}`);
           connection.query(
             `INSERT INTO ${res} SET ?`,
             {
@@ -114,7 +112,19 @@ function addFunc(resChooseTable) {
           break;
         case "Role":
           console.log(answer.name);
-          // init();
+          inquirer.prompt(
+            {
+              name: "tite",
+              type: "input",
+              message: `What is the title of the ${resChooseTableAdd}?`,
+            },
+            {
+              name: "salary",
+              type: "input",
+              message: `What is the salaray for the ${resChooseTableAdd}?`,
+            }
+          );
+          init();
           break;
         case "Employee":
           console.log(answer.name);
@@ -123,6 +133,21 @@ function addFunc(resChooseTable) {
       }
     });
 }
+
+// function addRole() {
+//   inquirer.prompt(
+//     {
+//       name: "tite",
+//       type: "input",
+//       message: `What is the title of the ${resChooseTableAdd}?`,
+//     },
+//     {
+//       name: "salary",
+//       type: "input",
+//       message: `What is the salaray for the ${resChooseTableAdd}?`,
+//     }
+//   );
+// }
 
 // function addItem(resChooseTable, answer) {
 //   console.log(`117 addItem ${resChooseTable}`);
