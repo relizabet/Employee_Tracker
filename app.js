@@ -1,15 +1,10 @@
 const inquirer = require("inquirer");
 const cTable = require("console.table");
 const connection = require("./config/connect");
-// const queries = require("./queries/queries");
-// const insertDepartment = require("./queries/queries");
-
-// return new Promise
-
-// console.table(department);
+// const { query } = require("./config/connect");
 
 // initialize program by choosing what action to take
-function init() {
+const init = () => {
   inquirer
     .prompt([
       {
@@ -35,17 +30,16 @@ function init() {
           break;
 
         case "Update employee roles.":
-          chooseTable();
           break;
 
         case "Exit":
           connection.end();
       }
     });
-}
+};
 
-// choose which table to work in
-function chooseTableAdd(table) {
+// choose which table to add to
+const chooseTableAdd = (table) => {
   inquirer
     .prompt({
       name: "choice",
@@ -55,9 +49,23 @@ function chooseTableAdd(table) {
     .then(function (answer) {
       addFunc(answer.choice);
     });
-}
+};
 
-function addFunc(table) {
+// choose which table to view
+const chooseTableView = (tableView) => {
+  inquirer
+    .prompt({
+      name: "choice",
+      type: "rawlist",
+      choices: ["Department", "Role", "Employee"],
+    })
+    .then(function (answers) {
+      viewFunc(answers.choice);
+    });
+};
+
+// add what you want
+const addFunc = (table) => {
   console.log(table);
   switch (table) {
     case "Department":
@@ -71,7 +79,7 @@ function addFunc(table) {
           connection.query(
             "INSERT INTO department SET ?",
             { name: answers.department_name },
-            function (err) {
+            function (err, res) {
               if (err) throw err;
               console.log(
                 `\n The department ${answers.department_name} has been added.`
@@ -103,7 +111,7 @@ function addFunc(table) {
               salary: answers.role_salary,
               department_id: "4",
             },
-            function (err) {
+            function (err, res) {
               if (err) throw err;
               console.log(`\n The role ${answers.role_title} has been added.`);
             }
@@ -133,7 +141,7 @@ function addFunc(table) {
               last_name: answers.employee_last,
               role_id: "8",
             },
-            function (err) {
+            function (err, res) {
               if (err) throw err;
               console.log(
                 `\n ${answers.employee_first} ${answers.employee_last} has been added.`
@@ -144,69 +152,32 @@ function addFunc(table) {
         });
       break;
   }
-}
+};
 
-function viewFunc(table) {
-  connection.query(`SELECT * FROM department;`, function (err) {
-    console.table(answer);
-    if (err) throw err;
-    // console.log(`The ${res} '${answer.name}' was added succesfully.`);
-  });
-}
+// view what you want
+const viewFunc = (tableView) => {
+  switch (tableView) {
+    case "Department":
+      connection.query("SELECT * FROM department;", function (err, res) {
+        console.table(res);
+        if (err) throw err;
+      });
+      break;
+    case "Role":
+      connection.query("SELECT * FROM role;", function (err, res) {
+        console.table(res);
+        if (err) throw err;
+      });
+      break;
+    case "Employee":
+      connection.query("SELECT * FROM employee;", function (err, res) {
+        console.table(res);
+        if (err) throw err;
+      });
+      break;
+  }
+};
 
-// function updateFunc() {
-//   console.log("update");
-//   init();
-// }
-
-// --------------------------------------------------------------- //
-// function whichOne(resWhichOne) {
-//   inquirer
-//     .prompt({
-//       name: "choice",
-//       type: "rawlist",
-//       choices: ["Department", "Role", "Employee"],
-//     })
-//     .then(function (answer) {
-//       switch (answer.choice) {
-//         case "Department":
-//           addFunc(answer.choice);
-//           runSearch();
-//           break;
-
-//         case "Role":
-//           console.log("Role");
-//           addFunc(answer.choice);
-//           runSearch();
-//           break;
-
-//         case "Employee":
-//           console.log("Employee");
-//           addFunc(answer.choice);
-//           runSearch();
-//           break;
-//       }
-//     });
-// }
-// --------------------------------------------------------------- //
-
-// - Add departments, roles, employees
-// Add
-// * departments
-// **
-// * roles
-// * employees
-
-// - View departments, roles, employees
-// View
-// * departments
-// * roles
-// * employees
-
-// - Update employee roles
-// Update
-// * departments
-// * roles
-// * employees
+// update what you want
 
 init();
