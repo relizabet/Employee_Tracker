@@ -1,23 +1,29 @@
 const inquirer = require("inquirer");
 const cTable = require("console.table");
 const connection = require("./config/connect");
+// const queries = require("./queries/queries");
+// const insertDepartment = require("./queries/queries");
 
 // return new Promise
+
+// console.table(department);
 
 // initialize program by choosing what action to take
 function init() {
   inquirer
-    .prompt({
-      name: "action",
-      type: "rawlist",
-      message: "What would you like to do?",
-      choices: [
-        "Add departments, roles, or employees.",
-        "View departments, roles, or employees.",
-        "Update employee roles.",
-        "Exit",
-      ],
-    })
+    .prompt([
+      {
+        name: "action",
+        type: "rawlist",
+        message: "What would you like to do?",
+        choices: [
+          "Add departments, roles, or employees.",
+          "View departments, roles, or employees.",
+          "Update employee roles.",
+          "Exit",
+        ],
+      },
+    ])
     .then(function (answer) {
       switch (answer.action) {
         case "Add departments, roles, or employees.":
@@ -25,7 +31,7 @@ function init() {
           break;
 
         case "View departments, roles, or employees.":
-          chooseTable();
+          chooseTableView();
           break;
 
         case "Update employee roles.":
@@ -39,7 +45,7 @@ function init() {
 }
 
 // choose which table to work in
-function chooseTableAdd(resChooseTableAdd) {
+function chooseTableAdd(table) {
   inquirer
     .prompt({
       name: "choice",
@@ -47,153 +53,141 @@ function chooseTableAdd(resChooseTableAdd) {
       choices: ["Department", "Role", "Employee"],
     })
     .then(function (answer) {
-      console.log(answer.choice);
-      switch (answer.choice) {
-        case "Department":
-          addFunc(answer.choice);
-          break;
-
-        case "Role":
-          console.log("Role");
-          addFunc(answer.choice);
-          // init();
-          break;
-
-        case "Employee":
-          console.log("Employee");
-          addFunc(answer.choice);
-          // init();
-          break;
-      }
+      addFunc(answer.choice);
     });
 }
 
-function addFunc(resChooseTableAdd) {
-  console.log(resChooseTableAdd);
-  inquirer
-    .prompt({
-      name: "name",
-      type: "input",
-      message: `What is the name of the ${resChooseTableAdd}?`,
-    })
-    .then(function (answer) {
-      // get input
-      console.log(`input value: ${answer.name}`);
-      // get choice of table
-      console.log(`name of table: ${resChooseTableAdd}`);
-      switch (resChooseTableAdd) {
-        case "Department":
-          // console.log(answer.name);
-          let res = resChooseTableAdd.toLowerCase();
-          // console.log(`121 lowered res: ${res}`);
+function addFunc(table) {
+  console.log(table);
+  switch (table) {
+    case "Department":
+      inquirer
+        .prompt({
+          name: "department_name",
+          type: "input",
+          message: "What is the name of the department?",
+        })
+        .then(function (answers) {
           connection.query(
-            `INSERT INTO ${res} SET ?`,
+            "INSERT INTO department SET ?",
+            { name: answers.department_name },
+            function (err) {
+              if (err) throw err;
+              console.log(
+                `\n The department ${answers.department_name} has been added.`
+              );
+            }
+          );
+          init();
+        });
+      break;
+    case "Role":
+      inquirer
+        .prompt([
+          {
+            name: "role_title",
+            type: "input",
+            message: "What is the name of the role?",
+          },
+          {
+            name: "role_salary",
+            type: "input",
+            message: "What is the salary of the role?",
+          },
+        ])
+        .then(function (answers) {
+          connection.query(
+            "INSERT INTO role SET ?",
             {
-              name: answer.name,
+              title: answers.role_title,
+              salary: answers.role_salary,
+              department_id: "4",
             },
             function (err) {
               if (err) throw err;
-              console.log(`The ${res} '${answer.name}' was added succesfully.`);
+              console.log(`\n The role ${answers.role_title} has been added.`);
             }
           );
           init();
-          break;
-        case "Role":
-          console.log(answer.name);
-          inquirer.prompt(
+        });
+      break;
+    case "Employee":
+      inquirer
+        .prompt([
+          {
+            name: "employee_first",
+            type: "input",
+            message: "What is your employees first name?",
+          },
+          {
+            name: "employee_last",
+            type: "input",
+            message: "What is your employees last name?",
+          },
+        ])
+        .then(function (answers) {
+          connection.query(
+            "INSERT INTO employee SET ?",
             {
-              name: "tite",
-              type: "input",
-              message: `What is the title of the ${resChooseTableAdd}?`,
+              first_name: answers.employee_first,
+              last_name: answers.employee_last,
+              role_id: "8",
             },
-            {
-              name: "salary",
-              type: "input",
-              message: `What is the salaray for the ${resChooseTableAdd}?`,
+            function (err) {
+              if (err) throw err;
+              console.log(
+                `\n ${answers.employee_first} ${answers.employee_last} has been added.`
+              );
             }
           );
           init();
-          break;
-        case "Employee":
-          console.log(answer.name);
-          // init();
-          break;
-      }
-    });
+        });
+      break;
+  }
 }
 
-// function addRole() {
-//   inquirer.prompt(
-//     {
-//       name: "tite",
-//       type: "input",
-//       message: `What is the title of the ${resChooseTableAdd}?`,
-//     },
-//     {
-//       name: "salary",
-//       type: "input",
-//       message: `What is the salaray for the ${resChooseTableAdd}?`,
-//     }
-//   );
+function viewFunc(table) {
+  connection.query(`SELECT * FROM department;`, function (err) {
+    console.table(answer);
+    if (err) throw err;
+    // console.log(`The ${res} '${answer.name}' was added succesfully.`);
+  });
+}
+
+// function updateFunc() {
+//   console.log("update");
+//   init();
 // }
-
-// function addItem(resChooseTable, answer) {
-//   console.log(`117 addItem ${resChooseTable}`);
-//   console.log(`118 answer input ${answer.name}`);
-
-//   let res = resChooseTable.toLowerCase();
-//   console.log(`121 lowered res: ${res}`);
-//   connection.query(
-//     `INSERT INTO ${res} SET ?`,
-//     {
-//       name: answer.name,
-//     },
-//     function (err) {
-//       if (err) throw err;
-//       console.log(`The ${res} '${answer.name} was added succesfully.`);
-//     }
-//   );
-// }
-
-function viewFunc() {
-  console.log("view");
-  init();
-}
-
-function updateFunc() {
-  console.log("update");
-  init();
-}
 
 // --------------------------------------------------------------- //
-function whichOne(resWhichOne) {
-  inquirer
-    .prompt({
-      name: "choice",
-      type: "rawlist",
-      choices: ["Department", "Role", "Employee"],
-    })
-    .then(function (answer) {
-      switch (answer.choice) {
-        case "Department":
-          addFunc(answer.choice);
-          runSearch();
-          break;
+// function whichOne(resWhichOne) {
+//   inquirer
+//     .prompt({
+//       name: "choice",
+//       type: "rawlist",
+//       choices: ["Department", "Role", "Employee"],
+//     })
+//     .then(function (answer) {
+//       switch (answer.choice) {
+//         case "Department":
+//           addFunc(answer.choice);
+//           runSearch();
+//           break;
 
-        case "Role":
-          console.log("Role");
-          addFunc(answer.choice);
-          runSearch();
-          break;
+//         case "Role":
+//           console.log("Role");
+//           addFunc(answer.choice);
+//           runSearch();
+//           break;
 
-        case "Employee":
-          console.log("Employee");
-          addFunc(answer.choice);
-          runSearch();
-          break;
-      }
-    });
-}
+//         case "Employee":
+//           console.log("Employee");
+//           addFunc(answer.choice);
+//           runSearch();
+//           break;
+//       }
+//     });
+// }
 // --------------------------------------------------------------- //
 
 // - Add departments, roles, employees
