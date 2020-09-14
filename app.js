@@ -106,100 +106,98 @@ const addFunc = (table) => {
         });
       break;
     case "Role":
-      // connection.query("SELECT * FROM department;", function (err, res) {
-      //   Object.keys(res).forEach(function (key) {
-      //     let row = res[key];
-      //     depArr.push(row.name);
-      //   });
-      //   if (err) throw err;
-      //   inquirer
-      //     .prompt([
-      //       {
-      //         name: "to_delete",
-      //         type: "rawlist",
-      //         choices: depArr,
-      //       },
-      //     ])
-      //     .then(function (answers) {
-      //       console.log(answers);
-      //     });
-      // });
-      inquirer
-        .prompt([
-          {
-            name: "role_title",
-            type: "input",
-            message: "What is the name of the role?",
-          },
-          {
-            name: "role_salary",
-            type: "input",
-            message: "What is the salary of the role?",
-          },
-          {
-            name: "department_id",
-            type: "rawlist",
-            // need list of departments and corresponding id
-            message: "What department does this role belong to?",
-            choices: ["Dep1", "Dep2", "Dep3", "Dep4"],
-          },
-        ])
-        .then(function (answers) {
-          connection.query(
-            "INSERT INTO role SET ?",
-            {
-              title: answers.role_title,
-              salary: answers.role_salary,
-              department_id: "4",
-            },
-            function (err) {
-              if (err) throw err;
-              console.log(`\n The role ${answers.role_title} has been added.`);
-            }
-          );
-          init();
+      let depArr = [];
+      connection.query("SELECT * FROM department;", function (err, res) {
+        Object.keys(res).forEach(function (key) {
+          let row = res[key];
+          depArr.push(row.name);
         });
+        if (err) throw err;
+        inquirer
+          .prompt([
+            {
+              name: "role_title",
+              type: "input",
+              message: "What is the name of the role?",
+            },
+            {
+              name: "role_salary",
+              type: "input",
+              message: "What is the salary of the role?",
+            },
+            {
+              name: "department_id",
+              type: "rawlist",
+              message: "What department does this role belong to?",
+              choices: depArr,
+            },
+          ])
+          .then(function (answers) {
+            connection.query(
+              "INSERT INTO role SET ?",
+              {
+                title: answers.role_title,
+                salary: answers.role_salary,
+                department_id: "4",
+              },
+              function (err) {
+                if (err) throw err;
+                console.log(
+                  `\n The role ${answers.role_title} has been added.`
+                );
+              }
+            );
+            init();
+          });
+      });
       break;
     case "Employee":
-      const roles = JSON.stringify(getCurrentRoles());
-      inquirer
-        .prompt([
-          {
-            name: "employee_first",
-            type: "input",
-            message: "What is your employees first name?",
-          },
-          {
-            name: "employee_last",
-            type: "input",
-            message: "What is your employees last name?",
-          },
-          {
-            name: "employee_role",
-            type: "list",
-            message: "What is the employees role?",
-            // bring in array of current roles, display as choices
-            choices: ["Manager", "Web Developer", "Customer Service"],
-          },
-        ])
-        .then(function (answers) {
-          connection.query(
-            "INSERT INTO employee SET ?",
-            {
-              first_name: answers.employee_first,
-              last_name: answers.employee_last,
-              // need role ids that coincide with current roles
-              role_id: "8",
-            },
-            function (err, res) {
-              if (err) throw err;
-              console.log(
-                `\n ${answers.employee_first} ${answers.employee_last} has been added.`
-              );
-            }
-          );
-          init();
+      let roleArr = [];
+      connection.query("SELECT * FROM role;", function (err, res) {
+        Object.keys(res).forEach(function (key) {
+          let row = res[key];
+          roleArr.push(row.title);
         });
+        if (err) throw err;
+        // });
+        inquirer
+          .prompt([
+            {
+              name: "employee_first",
+              type: "input",
+              message: "What is your employees first name?",
+            },
+            {
+              name: "employee_last",
+              type: "input",
+              message: "What is your employees last name?",
+            },
+            {
+              name: "employee_role",
+              type: "list",
+              message: "What is the employees role?",
+              choices: roleArr,
+            },
+          ])
+          .then(function (answers) {
+            connection.query(
+              "INSERT INTO employee SET ?",
+              {
+                first_name: answers.employee_first,
+                last_name: answers.employee_last,
+                // need role ids that coincide with current roles
+                role_id: "8",
+              },
+              function (err, res) {
+                if (err) throw err;
+                console.log(
+                  `\n ${answers.employee_first} ${answers.employee_last} has been added.`
+                );
+              }
+            );
+            init();
+          });
+      });
       break;
   }
 };
@@ -209,6 +207,9 @@ const viewFunc = (tableView) => {
   switch (tableView) {
     case "Department":
       connection.query("SELECT * FROM department;", function (err, res) {
+        console.log("\n-----------------");
+        console.log("|  DEPARTMENTS  |");
+        console.log("-----------------");
         console.table(res);
         if (err) throw err;
       });
@@ -216,6 +217,9 @@ const viewFunc = (tableView) => {
       break;
     case "Role":
       connection.query("SELECT * FROM role;", function (err, res) {
+        console.log("\n-----------------");
+        console.log("|     ROLES     |");
+        console.log("-----------------");
         console.table(res);
         if (err) throw err;
       });
@@ -223,6 +227,9 @@ const viewFunc = (tableView) => {
       break;
     case "Employee":
       connection.query("SELECT * FROM employee;", function (err, res) {
+        console.log("\n-----------------");
+        console.log("|   EMPLOYEES   |");
+        console.log("-----------------");
         console.table(res);
         if (err) throw err;
       });
@@ -250,31 +257,78 @@ const deleteFunc = (tableDelete) => {
             },
           ])
           .then(function (answers) {
-            connection.query(
-              "DELETE FROM role WHERE ?;",
-              { title: `${answers}` },
+            console.log(answers.to_delete);
+            var query = connection.query(
+              "DELETE FROM department WHERE ?;",
+              { name: `${answers.to_delete}` },
               function (err, res) {
-                console.table(role);
+                if (err) throw err;
               }
             );
+            // console.log(query.sql);
+            init();
           });
       });
-      // console.log(depArr);
-      init();
       break;
     case "Role":
+      let roleArr = [];
       connection.query("SELECT * FROM role;", function (err, res) {
-        console.table(res);
+        Object.keys(res).forEach(function (key) {
+          let row = res[key];
+          roleArr.push(row.title);
+        });
         if (err) throw err;
+        inquirer
+          .prompt([
+            {
+              name: "to_delete",
+              type: "rawlist",
+              choices: roleArr,
+            },
+          ])
+          .then(function (answers) {
+            console.log(answers.to_delete);
+            var query = connection.query(
+              "DELETE FROM role WHERE ?;",
+              { title: `${answers.to_delete}` },
+              function (err, res) {
+                if (err) throw err;
+              }
+            );
+            // console.log(query.sql);
+            init();
+          });
       });
-      init();
       break;
     case "Employee":
+      let empArr = [];
       connection.query("SELECT * FROM employee;", function (err, res) {
-        console.table(res);
+        Object.keys(res).forEach(function (key) {
+          let row = res[key];
+          empArr.push(row.first_name);
+        });
         if (err) throw err;
+        inquirer
+          .prompt([
+            {
+              name: "to_delete",
+              type: "rawlist",
+              choices: empArr,
+            },
+          ])
+          .then(function (answers) {
+            console.log(answers.to_delete);
+            var query = connection.query(
+              "DELETE FROM employee WHERE ?;",
+              { first_name: `${answers.to_delete}` },
+              function (err, res) {
+                if (err) throw err;
+              }
+            );
+            // console.log(query.sql);
+            init();
+          });
       });
-      init();
       break;
   }
 };
